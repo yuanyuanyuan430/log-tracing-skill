@@ -1,0 +1,28 @@
+{
+  "repo_name": "log-tracing-skill",
+  "version": "0.1.0",
+  "description": "全链路日志追踪（traceId + uid）Agent Skill：接入、审查、验证、排查，带可运行的并发验证工具。",
+  "license": "MIT",
+  "primary_skill": "log-tracing",
+  "skills": [
+    {
+      "name": "log-tracing",
+      "path": "skills/log-tracing/SKILL.md",
+      "description": "给服务接入 traceId/uid，审查线程池丢号、MDC 串号、不透传等漏洞，用 tracekit 并发验证，并按 trace 串日志定位到具体请求和账号。",
+      "status": "active",
+      "maturity": "production-draft",
+      "primary_outputs": ["integration_code", "review_findings", "verification_report", "trace_investigation"]
+    }
+  ],
+  "references": [
+    "skills/log-tracing/references/java-spring.md",
+    "skills/log-tracing/references/node.md",
+    "skills/log-tracing/references/standards.md",
+    "skills/log-tracing/references/investigate.md"
+  ],
+  "validation": {
+    "script": "scripts/validate_skill.py",
+    "tests": ["skills/log-tracing/scripts/run_demo.sh", "tests/doc-java/run.sh", "tests/doc-node/run.sh"],
+    "entry": "tests/run_all.sh"
+  }
+}

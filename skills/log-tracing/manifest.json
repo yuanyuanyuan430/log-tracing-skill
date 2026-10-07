@@ -1,0 +1,12 @@
+{
+  "id": "log-tracing",
+  "name": "Log Tracing",
+  "version": "0.1.0",
+  "owner": "yuanyuanyuan430",
+  "status": "active",
+  "maturity": "production-draft",
+  "review_cadence": "quarterly",
+  "requires_web": false,
+  "primary_outputs": ["integration_code", "review_findings", "verification_report", "trace_investigation"],
+  "entrypoint": "SKILL.md"
+}

@@ -1,0 +1,23 @@
+{
+  "skill_name": "log-tracing",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "我们有个 Spring Boot 2.7 的订单服务，日志用 logback，线上并发一高日志就混在一起没法查。帮我按公众号那种 AOP+MDC 的方案加上 traceId，线程池（CompletableFuture 那块）里的日志也要有号，代码在 ~/work/order-service。",
+      "expected_output": "入口放在最高优先级的 Servlet Filter（不是只切 Controller），沿用 traceparent，没有才生成 32 位十六进制号；logback pattern 加 %X{traceId}；TaskDecorator 恢复而不是 clear；CompletableFuture 显式传 executor；响应头回传；调下游透传；鉴权后放 uid；用 tracekit probe/verify --lines N 拿到通过的证据。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "这是我们现在的日志追踪代码，照着网上文章写的，帮我看看有没有问题：\n@Around(\"@annotation(org.springframework.web.bind.annotation.GetMapping) || @annotation(org.springframework.web.bind.annotation.PostMapping)\")\npublic Object injectLogId(ProceedingJoinPoint pjp) throws Throwable {\n  String logId = httpServletRequest.getHeader(\"logId\");\n  logId = StringUtils.isNotBlank(logId) ? (logId + \"_\") : \"\" + UUID.randomUUID().toString();\n  MDC.put(\"logId\", logId);\n  try { return pjp.proceed(); } finally { MDC.remove(\"logId\"); }\n}\n装饰器里是 logId += \"_\" + Thread.currentThread().getName(); finally 里 MDC.clear()，线程池拒绝策略是 CallerRunsPolicy。",
+      "expected_output": "指出：三元运算符与 + 的优先级 bug（有上游号时得到 'abc_'）；AOP 只覆盖 Controller；子线程拼线程名破坏精确搜索；CallerRunsPolicy 下 MDC.clear() 会清掉请求线程自己的号；建议改用 traceparent；并给出修正代码与验证方法。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "早上看监控，订单库 orders-db 昨晚 23 点那个小时慢查询 175 条，超过了告警阈值。慢 SQL 结尾有一段 /*traceparent='00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01',user_id='u_8f3a2c'*/，帮我查一下是谁、在干什么。",
+      "expected_output": "从注释取出 trace-id 与 user_id；用 trace=\"projects/<P>/traces/<id>\" 拉整条链路（遵守环境的 gcloud 约定）；按时间读出页面/接口/行为；说明 user_id 对应到人需要查用户表；不以 IP/UA 下'查不出是谁'的结论。",
+      "files": []
+    }
+  ]
+}

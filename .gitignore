@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+target/
+logs/
+node_modules/
+*.log
+sent*.jsonl
